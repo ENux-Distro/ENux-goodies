@@ -1,0 +1,38 @@
+#!/bin/bash
+# Must run as root
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: phase2.sh must run as root!"
+  exit 1
+fi
+
+if [ -f /etc/enux-phase2-done ]; then
+  exit 0
+fi
+
+clear
+echo "========================================"
+echo     "ENux PHASE 2 - FETCHING STRATAS "
+echo "========================================"
+
+echo "Fetching Arch..."
+brl fetch arch
+
+echo "Fetching Fedora..."
+brl fetch fedora --release 41
+
+echo "Fetching Void..."
+brl fetch void
+
+echo "Fetching Alpine"
+brl fetch alpine
+
+echo "Fetching Gentoo"
+brl fetch gentoo
+
+echo
+echo "========================================"
+echo "          ENux 1.0 IS READY!"
+echo "            Run: enuxfetch"
+echo "========================================"
+
+touch /etc/enux-phase2-done
