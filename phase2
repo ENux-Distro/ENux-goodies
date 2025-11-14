@@ -17,7 +17,7 @@ echo "========================================"
 echo "Fetching Arch..."
 brl fetch arch
 
-echo "Fetching Debian..."
+echo "Fetching Fedora..."
 brl fetch fedora --release 41
 
 echo "Fetching Void..."
