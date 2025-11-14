@@ -1,0 +1,69 @@
+#!/bin/bash
+clear
+echo "========================================"
+echo "       ENux PHASE 1 - BEDROCK HIJACK   "
+echo "========================================"
+echo
+
+echo "[1/5] Updating system..."
+apt update -qq
+
+echo "[2/5] Installing fastfetch + expect..."
+apt install -y fastfetch expect wget curl
+
+echo "[3/5] Creating ENux fastfetch config..."
+mkdir -p /etc
+cat > /etc/fastfetch.jsonc << 'JSON'
+{ 
+  "$schema": "https://fastfetch.dev/json-schema", 
+  "modules": [ 
+    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" }, 
+    { "type": "os", "format": "ENux 1.0 x86_64" }, 
+    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" }, 
+    "uptime", 
+    "shell", 
+    "de", 
+    "memory", 
+    "display", 
+    "disk", 
+    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" } 
+  ] 
+}
+JSON
+
+echo "[4/5] Creating enuxfetch wrapper..."
+cat > /usr/local/bin/enuxfetch << 'WRAP'
+#!/bin/bash
+fastfetch --config /etc/fastfetch.jsonc
+WRAP
+chmod +x /usr/local/bin/enuxfetch
+
+echo "[5/5] Creating enux APT wrapper..."
+cat > /usr/local/bin/enux << 'APT'
+#!/bin/bash
+echo "ENux: Using apt (pre-hijack) / brl (post-hijack)"
+apt "$@"
+APT
+chmod +x /usr/local/bin/enux
+
+echo
+echo "Downloading Bedrock Linux..."
+wget -O /tmp/bedrock.sh https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh
+chmod +x /tmp/bedrock.sh
+
+echo
+echo "Running Bedrock hijack (auto-answering 'Not reversible!')..."
+expect -c '
+  spawn /tmp/bedrock.sh --hijack
+  expect "Not reversible!"
+  send "Not reversible!\r"
+  interact
+'
+
+echo
+echo "========================================"
+echo "   HIJACK COMPLETE!"
+echo "   REBOOT NOW FOR ENux PHASE 2"
+echo "   (Stratas will be fetched automatically)"
+echo "========================================"
+echo "Run: sudo reboot"
