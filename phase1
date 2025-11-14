@@ -1,4 +1,15 @@
 #!/bin/bash
+if [ "$EUID" -ne 0 ]; then
+  clear
+  echo "========================================"
+  echo "   ERROR: ENux PHASE 1 REQUIRES ROOT   "
+  echo "========================================"
+  echo
+  echo "Run with: sudo ./phase1.sh"
+  echo
+  exit 1
+fi
+
 clear
 echo "========================================"
 echo "       ENux PHASE 1 - BEDROCK HIJACK   "
@@ -73,7 +84,7 @@ chmod +x /tmp/bedrock.sh
 echo
 echo "Running Bedrock hijack (auto-answering 'Not reversible!')..."
 expect -c '
-  spawn /tmp/bedrock.sh --hijack
+  spawn sh ./tmp/bedrock-linux/bedrock-linux-0.7.30-x86_64.sh --hijack
   expect "Not reversible!"
   send "Not reversible!\r"
   interact
