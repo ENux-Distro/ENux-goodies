@@ -8,15 +8,34 @@ echo
 echo "[1/5] Updating system..."
 apt update -qq
 
-echo "[2/5] Installing fastfetch + expect..."
-apt install -y fastfetch expect wget curl
+echo "[2/5] Installing fastfetch + more..."
+apt install -y fastfetch git wget curl
 
 echo "[3/5] Creating ENux fastfetch config..."
 mkdir -p /etc
-cat > /etc/fastfetch.jsonc << 'JSON'
+mkdir -p /etc/fastfetch/
+
+cat /etc/fastfetch/E-logo.txt EOF
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+EOF
+
+cat > /etc/fastfetch/config.jsonc << 'JSON'
 { 
   "$schema": "https://fastfetch.dev/json-schema", 
-  "modules": [ 
+  "logo" : {
+  "type": "file",
+  "source": "~E-logo.txt"
+"modules": [
     { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" }, 
     { "type": "os", "format": "ENux 1.0 x86_64" }, 
     { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" }, 
