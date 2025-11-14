@@ -1,0 +1,99 @@
+#!/bin/bash
+if [ "$EUID" -ne 0 ]; then
+  clear
+  echo "========================================"
+  echo "   ERROR: ENux PHASE 1 REQUIRES ROOT   "
+  echo "========================================"
+  echo
+  echo "Run with: sudo ./phase1.sh"
+  echo
+  exit 1
+fi
+
+clear
+echo "========================================"
+echo "       ENux PHASE 1 - BEDROCK HIJACK   "
+echo "========================================"
+echo
+
+echo "[1/5] Updating system..."
+apt update -qq
+
+echo "[2/5] Installing fastfetch + more..."
+apt install -y fastfetch git expect wget curl
+
+echo "[3/5] Creating ENux fastfetch config..."
+mkdir -p /etc
+mkdir -p /etc/fastfetch/
+
+cat /etc/fastfetch/E-logo.txt EOF
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+EOF
+
+cat > /etc/fastfetch/config.jsonc << 'JSON'
+{ 
+  "$schema": "https://fastfetch.dev/json-schema", 
+  "logo" : {
+  "type": "file",
+  "source": "~E-logo.txt"
+"modules": [
+    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" }, 
+    { "type": "os", "format": "ENux 1.0 x86_64" }, 
+    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" }, 
+    "uptime", 
+    "shell", 
+    "de", 
+    "memory", 
+    "display", 
+    "disk", 
+    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" } 
+  ] 
+}
+JSON
+
+echo "[4/5] Creating enuxfetch wrapper..."
+cat > /usr/local/bin/enuxfetch << 'WRAP'
+#!/bin/bash
+fastfetch --config /etc/fastfetch.jsonc
+WRAP
+chmod +x /usr/local/bin/enuxfetch
+
+echo "[5/5] Creating enux APT wrapper..."
+cat > /usr/local/bin/enux << 'APT'
+#!/bin/bash
+echo "ENux: Using apt (pre-hijack) / brl (post-hijack)"
+apt "$@"
+APT
+chmod +x /usr/local/bin/enux
+
+echo
+echo "Downloading Bedrock Linux..."
+git clone https://github.com/ENux-Distro/bedrock-linux.git
+chmod +x /tmp/bedrock.sh
+
+echo
+echo "Running Bedrock hijack (auto-answering 'Not reversible!')..."
+expect -c '
+  spawn sh ./tmp/bedrock-linux/bedrock-linux-0.7.30-x86_64.sh --hijack
+  expect "Not reversible!"
+  send "Not reversible!\r"
+  interact
+'
+
+echo
+echo "========================================"
+echo "   HIJACK COMPLETE!"
+echo "   REBOOT NOW FOR ENux PHASE 2"
+echo "   (Stratas will be fetched automatically)"
+echo "========================================"
+echo "Run: sudo reboot"
