@@ -67,7 +67,7 @@ chmod +x /usr/local/bin/enux
 
 echo
 echo "Downloading Bedrock Linux..."
-
+git clone https://github.com/ENux-Distro/bedrock-linux.git
 chmod +x /tmp/bedrock.sh
 
 echo
