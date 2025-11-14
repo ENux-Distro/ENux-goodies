@@ -20,7 +20,7 @@ echo "[1/5] Updating system..."
 apt update -qq
 
 echo "[2/5] Installing fastfetch + more..."
-apt install -y fastfetch git wget curl
+apt install -y fastfetch git expect wget curl
 
 echo "[3/5] Creating ENux fastfetch config..."
 mkdir -p /etc
