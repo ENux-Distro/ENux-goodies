@@ -11,7 +11,7 @@ fi
 
 clear
 echo "========================================"
-echo "       ENux PHASE 2 - FETCHING STRATAS "
+echo     "ENux PHASE 2 - FETCHING STRATAS "
 echo "========================================"
 
 echo "Fetching Arch..."
@@ -31,8 +31,8 @@ brl fetch gentoo
 
 echo
 echo "========================================"
-echo "   ENux 1.0 IS READY!"
-echo "   Run: enuxfetch"
+echo "          ENux 1.0 IS READY!"
+echo "            Run: enuxfetch"
 echo "========================================"
 
 touch /etc/enux-phase2-done
