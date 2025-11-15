@@ -2,7 +2,7 @@
 if [ "$EUID" -ne 0 ]; then
   clear
   echo "========================================"
-  echo "   ERROR: ENux PHASE 1 REQUIRES ROOT   "
+  echo "=   ERROR: ENux PHASE 1 REQUIRES ROOT  ="
   echo "========================================"
   echo
   echo "Run with: sudo ./phase1.sh"
@@ -11,22 +11,19 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 clear
-echo "========================================"
-echo "       ENux PHASE 1 - BEDROCK HIJACK   "
-echo "========================================"
-echo
 
-echo "[1/5] Updating system..."
-apt update -qq
+# Introduction
+echo: "================================================
+echo: "=               Welcome to                     =
+echo: "=     ENux Installation Phase 1 for Debian     =
+echo: "================================================
+# Installing neceserry tools 
+echo: "Installing neceserry tools"
+apt update && apt upgrade
+apt install fastfetch git wget curl expect
 
-echo "[2/5] Installing fastfetch + more..."
-apt install -y fastfetch git expect wget curl
-
-echo "[3/5] Creating ENux fastfetch config..."
-mkdir -p /etc
-mkdir -p /etc/fastfetch/
-
-cat /etc/fastfetch/E-logo.txt EOF
+mkdir -p ~/.config/fastfetch/
+cat ~/.config/fastfetch/E-logo.txt EOF
 eeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeee
 eeeee
@@ -36,8 +33,8 @@ eeeeeeeeeeeeeeeeeeeeeeee
 eeeee
 eeeee
 eeeee
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeee
 EOF
 
 cat > /etc/fastfetch/config.jsonc << 'JSON'
@@ -45,7 +42,7 @@ cat > /etc/fastfetch/config.jsonc << 'JSON'
   "$schema": "https://fastfetch.dev/json-schema", 
   "logo" : {
   "type": "file",
-  "source": "~E-logo.txt"
+  "source": "~/.config/fastfetch/E-logo.txt"
 "modules": [
     { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" }, 
     { "type": "os", "format": "ENux 1.0 x86_64" }, 
@@ -61,14 +58,12 @@ cat > /etc/fastfetch/config.jsonc << 'JSON'
 }
 JSON
 
-echo "[4/5] Creating enuxfetch wrapper..."
 cat > /usr/local/bin/enuxfetch << 'WRAP'
 #!/bin/bash
 fastfetch --config /etc/fastfetch.jsonc
 WRAP
 chmod +x /usr/local/bin/enuxfetch
 
-echo "[5/5] Creating enux APT wrapper..."
 cat > /usr/local/bin/enux << 'APT'
 #!/bin/bash
 echo "ENux: Using apt (pre-hijack) / brl (post-hijack)"
@@ -76,13 +71,12 @@ apt "$@"
 APT
 chmod +x /usr/local/bin/enux
 
-echo
-echo "Downloading Bedrock Linux..."
+echo: "Installing ENux core"
+
 git clone https://github.com/ENux-Distro/bedrock-linux.git
 chmod +x /tmp/bedrock.sh
 
-echo
-echo "Running Bedrock hijack (auto-answering 'Not reversible!')..."
+
 expect -c '
   spawn sh ./tmp/bedrock-linux/bedrock-linux-0.7.30-x86_64.sh --hijack
   expect "Not reversible!"
@@ -90,10 +84,10 @@ expect -c '
   interact
 '
 
-echo
-echo "========================================"
-echo "   HIJACK COMPLETE!"
-echo "   REBOOT NOW FOR ENux PHASE 2"
-echo "   (Stratas will be fetched automatically)"
-echo "========================================"
+
+echo "========================================="
+echo "=           PHASE 1 COMPLETED           ="
+echo "=      REBOOT NOW FOR ENux PHASE 2"     ="
+echo "=  ("E's will be installed at phase 2") ="
+echo "========================================="
 echo "Run: sudo reboot"
