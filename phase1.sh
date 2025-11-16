@@ -86,27 +86,24 @@ APT
 
 chmod +x /usr/local/bin/enux
 
+#Installing Bedrock Linux
 echo "Installing ENux core (Bedrock Linux hijack)..."
 
-# Path to bedrock installer inside ENux-goodies
-BEDROCK="$REPO_PATH/bedrock-linux-0.7.30-x86_64.sh"
+BEDROCK_URL="https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh"
+BEDROCK="/tmp/bedrock-linux-0.7.30-x86_64.sh"
 
-# Ensure file exists
-if [ ! -f "$BEDROCK" ]; then
-    echo "ERROR: Bedrock installer not found inside ENux-goodies!"
-    exit 1
-fi
+# Download installer
+wget -O "$BEDROCK" "$BEDROCK_URL" || { echo "ERROR: Failed to download Bedrock!"; exit 1; }
 
 chmod +x "$BEDROCK"
 
 # Run Bedrock installer with auto-confirm
 expect << EOF
-spawn sh "$BEDROCK" --hijack
+spawn sh ${BEDROCK} --hijack
 expect "Not reversible!"
 send "Not reversible!\r"
 interact
 EOF
-
 
 clear
 echo "========================================="
@@ -115,5 +112,5 @@ echo "=         REBOOT NOW FOR PHASE 2        ="
 echo "=        (E's installed in Phase 2)     ="
 echo "========================================="
 echo
-echo "Run: sudo reboot"
+echo            "Run: sudo reboot"
 
