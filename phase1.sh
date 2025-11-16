@@ -27,17 +27,19 @@ apt update -y && apt upgrade -y
 apt install -y fastfetch git wget curl expect
 
 # Create enuxfetch wrapper
-cat > /usr/local/bin/enuxfetch << 'WRAP'
-#!/bin/bash
-fastfetch --config /etc/fastfetch/config.jsonc
-WRAP
+cat << 'EOF' >> ~/.bashrc
+
+enuxfetch() {
+    fastfetch "$@"
+}
+
+EOF
 
 chmod +x /usr/local/bin/enuxfetch
 
 # Create ENux apt wrapper
 cat > /usr/local/bin/enux << 'APT'
 #!/bin/bash
-echo "ENux: Using apt (pre-hijack) / brl (post-hijack)"
 apt "$@"
 APT
 
