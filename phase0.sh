@@ -1,37 +1,39 @@
 #!/bin/bash
+# =========================
+# ENux Phase 0 - Desktop Launcher Creator
+# =========================
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-
-# Search for ENux-goodies in common locations
-SEARCH_PATHS=("$HOME" "/opt" "/usr/local/share" "/usr/share")
-REPO_PATH=""
-
-for path in "${SEARCH_PATHS[@]}"; do
-    if [ -d "$path/ENux-goodies" ]; then
-        REPO_PATH="$path/ENux-goodies"
-        break
-    fi
-done
-
-if [ -z "$REPO_PATH" ]; then
-    echo "ENux-goodies folder not found!"
+# Ensure we're running in bash
+if [ -z "$BASH_VERSION" ]; then
+    echo "Please run this script with bash:"
+    echo "sudo bash ./phase0.sh"
     exit 1
 fi
 
-echo "Found ENux-goodies at: $REPO_PATH"
+# Require root for creating desktop files in .local/share/applications
+if [ "$EUID" -ne 0 ]; then
+    echo "Run this script with sudo:"
+    echo "sudo ./phase0.sh"
+    exit 1
+fi
 
-# Scripts inside ENux-goodies
+# Use the current folder as repo path
+REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
+echo "Using ENux-goodies folder at: $REPO_PATH"
+
+# Scripts to create launchers for
 SCRIPTS=("phase1.sh" "phase2.sh")
 
-# Output directory for desktop icons
+# Where the desktop files go
 DESKTOP_DIR="$HOME/.local/share/applications"
 mkdir -p "$DESKTOP_DIR"
 
+# Loop through scripts
 for script in "${SCRIPTS[@]}"; do
     SCRIPT_PATH="$REPO_PATH/$script"
 
     if [ ! -f "$SCRIPT_PATH" ]; then
-        echo "$script not found!"
+        echo "$script not found in $REPO_PATH!"
         continue
     fi
 
@@ -49,8 +51,7 @@ EOF
 
     chmod +x "$DESKTOP_FILE"
     chmod +x "$SCRIPT_PATH"
+    echo "Created launcher for $script at $DESKTOP_FILE"
 done
 
-echo "Desktop launchers created in $DESKTOP_DIR!"
-
-
+echo "✅ Phase 0 complete! Launchers are in $DESKTOP_DIR"
