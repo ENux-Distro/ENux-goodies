@@ -20,7 +20,7 @@ echo "========================================"
 echo
 
 echo "Fetching Arch..."
-brl fetch arch
+brl fetch arch --mirror https://mirror.bytemark.co.uk/archlinux/$repo/os/$arch
 
 echo "Fetching Fedora ..."
 brl fetch fedora --release 41
