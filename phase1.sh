@@ -85,17 +85,25 @@ chmod +x /usr/local/bin/enux
 
 echo "Installing ENux core (Bedrock Linux hijack)..."
 
-# Clone bedrock repo
-git clone https://github.com/ENux-Distro/bedrock-linux.git /tmp/bedrock-linux
+# Path to bedrock installer inside ENux-goodies
+BEDROCK="$REPO_PATH/bedrock-linux-0.7.30-x86_64.sh"
 
-chmod +x /tmp/bedrock-linux/bedrock-linux-0.7.30-x86_64.sh
+# Ensure file exists
+if [ ! -f "$BEDROCK" ]; then
+    echo "ERROR: Bedrock installer not found inside ENux-goodies!"
+    exit 1
+fi
 
-expect << 'EOF'
-spawn sh /tmp/bedrock-linux/bedrock-linux-0.7.30-x86_64.sh --hijack
+chmod +x "$BEDROCK"
+
+# Run Bedrock installer with auto-confirm
+expect << EOF
+spawn sh "$BEDROCK" --hijack
 expect "Not reversible!"
 send "Not reversible!\r"
 interact
 EOF
+
 
 clear
 echo "========================================="
