@@ -26,49 +26,6 @@ echo "Installing necessary tools..."
 apt update -y && apt upgrade -y
 apt install -y fastfetch git wget curl expect
 
-# Create logo directory
-mkdir -p "$HOME/.config/fastfetch"
-
-# ASCII Logo
-cat > "$HOME/.config/fastfetch/E-logo.txt" << 'EOF'
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeee
-eeeee
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeee
-eeeee
-eeeee
-eeeeeeeeeeeeeeeeeeeeeeeee
-eeeeeeeeeeeeeeeeeeeeeeeee
-EOF
-
-# Fastfetch configuration
-mkdir -p /etc/fastfetch
-
-cat > /etc/fastfetch/config.jsonc << 'JSON'
-{
-  "$schema": "https://fastfetch.dev/json-schema",
-  "logo": {
-    "type": "file",
-    "source": "~/.config/fastfetch/E-logo.txt"
-  },
-  "modules": [
-    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
-    { "type": "os", "format": "ENux 1.0 x86_64" },
-    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
-    "uptime",
-    "shell",
-    "de",
-    "memory",
-    "display",
-    "disk",
-    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
-  ]
-}
-JSON
-
 # Create enuxfetch wrapper
 cat > /usr/local/bin/enuxfetch << 'WRAP'
 #!/bin/bash
