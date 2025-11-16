@@ -13,7 +13,6 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 clear
-
 echo "================================================"
 echo "=               Welcome to                     ="
 echo "=     ENux Installation Phase 1 for Debian     ="
@@ -24,9 +23,10 @@ echo "Installing necessary tools..."
 apt update -y && apt upgrade -y
 apt install -y fastfetch git wget curl expect
 
-# Create logo file
+# Create logo directory
 mkdir -p "$HOME/.config/fastfetch"
 
+# ASCII Logo
 cat > "$HOME/.config/fastfetch/E-logo.txt" << 'EOF'
 eeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeee
@@ -41,7 +41,7 @@ eeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeee
 EOF
 
-# Create fastfetch config
+# Fastfetch configuration
 mkdir -p /etc/fastfetch
 
 cat > /etc/fastfetch/config.jsonc << 'JSON'
@@ -66,7 +66,7 @@ cat > /etc/fastfetch/config.jsonc << 'JSON'
 }
 JSON
 
-# enuxfetch wrapper
+# Create enuxfetch wrapper
 cat > /usr/local/bin/enuxfetch << 'WRAP'
 #!/bin/bash
 fastfetch --config /etc/fastfetch/config.jsonc
@@ -74,7 +74,7 @@ WRAP
 
 chmod +x /usr/local/bin/enuxfetch
 
-# enux (apt wrapper)
+# Create ENux apt wrapper
 cat > /usr/local/bin/enux << 'APT'
 #!/bin/bash
 echo "ENux: Using apt (pre-hijack) / brl (post-hijack)"
