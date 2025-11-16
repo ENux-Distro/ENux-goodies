@@ -34,8 +34,7 @@ enuxfetch() {
 }
 
 EOF
-
-chmod +x /usr/local/bin/enuxfetch
+source ~/.bashrc
 
 # Create ENux apt wrapper
 cat > /usr/local/bin/enux << 'APT'
