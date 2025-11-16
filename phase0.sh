@@ -1,16 +1,17 @@
 #!/bin/bash
 
-# Auto-chmod on first run
-if [ ! -x "$0" ]; then
-    chmod +x "$0"
-    exec "$0"
-fi
-
-# Detect where this script is located
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Try to find ENux-goodies repo on the system
-REPO_PATH=$(find "$HOME" -type d -name "ENux-goodies" 2>/dev/null | head -n 1)
+# Search for ENux-goodies in common locations
+SEARCH_PATHS=("$HOME" "/opt" "/usr/local/share" "/usr/share")
+REPO_PATH=""
+
+for path in "${SEARCH_PATHS[@]}"; do
+    if [ -d "$path/ENux-goodies" ]; then
+        REPO_PATH="$path/ENux-goodies"
+        break
+    fi
+done
 
 if [ -z "$REPO_PATH" ]; then
     echo "ENux-goodies folder not found!"
@@ -19,23 +20,28 @@ fi
 
 echo "Found ENux-goodies at: $REPO_PATH"
 
-# List of scripts inside ENux-goodies
+# Scripts inside ENux-goodies
 SCRIPTS=("phase1.sh" "phase2.sh")
+
+# Output directory for desktop icons
+DESKTOP_DIR="$HOME/.local/share/applications"
+mkdir -p "$DESKTOP_DIR"
 
 for script in "${SCRIPTS[@]}"; do
     SCRIPT_PATH="$REPO_PATH/$script"
+
     if [ ! -f "$SCRIPT_PATH" ]; then
-        echo "$script not found in repo!"
+        echo "$script not found!"
         continue
     fi
 
-    # Create .desktop launcher in the same folder as phase0.sh
-    DESKTOP_FILE="$SCRIPT_DIR/$script.desktop"
+    DESKTOP_FILE="$DESKTOP_DIR/$script.desktop"
+
     cat <<EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Name=$script
 Comment=Run $script
-Exec=$SCRIPT_PATH
+Exec=$SCRIPT_PATH _class_
 Terminal=true
 Type=Application
 Categories=Utility;
@@ -45,5 +51,6 @@ EOF
     chmod +x "$SCRIPT_PATH"
 done
 
-echo "Desktop launchers created in $SCRIPT_DIR!"
+echo "Desktop launchers created in $DESKTOP_DIR!"
+
 
