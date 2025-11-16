@@ -55,12 +55,10 @@ https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/b
 chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
 
 # Run Bedrock installer with auto-confirm
-expect << EOF
-spawn sh /tmp/bedrock-linux-0.7.30-x86_64.sh --hijack
-expect "Not reversible!"
-send "Not reversible!\r"
-interact
-EOF
+cd /tmp/
+sh ./bedrock-linux-0.7.30-x86_64.sh --hijack
+cd ~
+cd ENux-goodies
 
 clear
 echo "========================================="
