@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_PATH="$SCRIPT_DIR"
+
 # Require root
 if [ "$EUID" -ne 0 ]; then
   clear
