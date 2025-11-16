@@ -34,6 +34,52 @@ brl fetch alpine
 echo "Fetching Gentoo..."
 brl fetch gentoo
 
+
+USER_HOME=$(eval echo "~$SUDO_USER")
+
+# Create logo directory
+mkdir -p "$USER_HOME/.config/fastfetch"
+
+# ASCII Logo
+cat > "$USER_HOME/.config/fastfetch/E-logo.txt" << 'EOF'
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeee
+EOF
+
+chmod 644 "$USER_HOME/.config/fastfetch/E-logo.txt"
+
+# Fastfetch configuration
+mkdir -p /etc/fastfetch
+cat > /etc/fastfetch/config.jsonc << EOF
+{
+  "\$schema": "https://fastfetch.dev/json-schema",
+  "logo": {
+    "type": "file",
+    "source": "$USER_HOME/.config/fastfetch/E-logo.txt"
+  },
+  "modules": [
+    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
+    { "type": "os", "format": "ENux 1.0 x86_64" },
+    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
+    "uptime",
+    "shell",
+    "de",
+    "memory",
+    "display",
+    "disk",
+    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
+  ]
+}
+EOF
+
 # Command to create the fastfetch configuration file
 cat > ~/.config/fastfetch/config.jsonc << 'EOF'
 {
