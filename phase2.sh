@@ -34,6 +34,30 @@ brl fetch alpine
 echo "Fetching Gentoo..."
 brl fetch gentoo
 
+# Command to create the fastfetch configuration file
+cat > ~/.config/fastfetch/config.jsonc << 'EOF'
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "logo": {
+      "type": "file",
+      "source": "/home/emir/.config/fastfetch/E-logo.txt"
+    },
+
+    "modules": [
+    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
+    { "type": "os", "format": "ENux 1.0 x86_64" },
+    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
+    "uptime",
+    "shell",
+    "de",
+    "memory",
+    "display",
+    "disk",
+    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
+  ]
+}
+EOF
+
 echo
 echo "========================================"
 echo "=          ENux 1.0 IS READY!          ="
