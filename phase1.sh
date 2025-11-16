@@ -86,20 +86,20 @@ APT
 
 chmod +x /usr/local/bin/enux
 
-#Installing Bedrock Linux
+# Installing Bedrock Linux
 echo "Installing ENux core (Bedrock Linux hijack)..."
 
-BEDROCK_URL="https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh"
-BEDROCK="/tmp/bedrock-linux-0.7.30-x86_64.sh"
-
 # Download installer
-wget -O "$BEDROCK" "$BEDROCK_URL" || { echo "ERROR: Failed to download Bedrock!"; exit 1; }
+wget -O /tmp/bedrock-linux-0.7.30-x86_64.sh \
+https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh \
+|| { echo "ERROR: Failed to download Bedrock!"; exit 1; }
 
-chmod +x "$BEDROCK"
+# Make it executable
+chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
 
 # Run Bedrock installer with auto-confirm
 expect << EOF
-spawn sh ${BEDROCK} --hijack
+spawn sh /tmp/bedrock-linux-0.7.30-x86_64.sh --hijack
 expect "Not reversible!"
 send "Not reversible!\r"
 interact
