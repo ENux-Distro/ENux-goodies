@@ -25,7 +25,7 @@ echo
 ###########################################
 
 echo "[+] Fetching Arch Linux..."
-brl fetch arch --mirror https://mirror.bytemark.co.uk/archlinux/extra/os/x86_64 || true
+brl fetch arch --mirror https://mirrors.ocf.berkeley.edu/archlinux/$repo/os/$arch || true
 
 echo "[+] Fetching Fedora 41..."
 brl fetch fedora --release 41 || true
