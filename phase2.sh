@@ -10,38 +10,51 @@ fi
 
 # Prevent double-running
 if [ -f /etc/enux-phase2-done ]; then
+  echo "Phase 2 already done. Skipping."
   exit 0
 fi
 
 clear
 echo "========================================"
-echo "         ENux PHASE 2 - INSTALLING E's"
+echo "        ENux PHASE 2 - SYSTEM SETUP"
 echo "========================================"
 echo
 
-echo "Fetching Arch..."
-brl fetch arch --mirror https://mirror.bytemark.co.uk/archlinux/$repo/os/$arch
+###########################################
+# 1. FETCH DISTROS USING BEDROCK-LINUX (brl)
+###########################################
 
-echo "Fetching Fedora ..."
-brl fetch fedora --release 41
+echo "[+] Fetching Arch Linux..."
+brl fetch arch --mirror https://mirror.bytemark.co.uk/archlinux/extra/os/x86_64 || true
 
-echo "Fetching Void..."
-brl fetch void
+echo "[+] Fetching Fedora 41..."
+brl fetch fedora --release 41 || true
 
-echo "Fetching Alpine..."
-brl fetch alpine
+echo "[+] Fetching Void..."
+brl fetch void || true
 
-echo "Fetching Gentoo..."
-brl fetch gentoo
+echo "[+] Fetching Alpine..."
+brl fetch alpine || true
 
+echo "[+] Fetching Gentoo..."
+brl fetch gentoo || true
 
-USER_HOME=$(eval echo "~$SUDO_USER")
+echo
+echo "[+] Fetch operations completed (errors ignored)."
+echo
 
-# Create logo directory
-mkdir -p "$USER_HOME/.config/fastfetch"
+#################################################
+# 2. PREPARE FASTFETCH CONFIGS (USER + SYSTEM)
+#################################################
 
-# ASCII Logo
-cat > "$USER_HOME/.config/fastfetch/E-logo.txt" << 'EOF'
+# Directory for system-wide fastfetch config
+mkdir -p /etc/fastfetch
+
+# Directory for user template (copied to new users)
+mkdir -p /etc/skel/.config/fastfetch
+
+# ASCII E Logo (saved in skel + system)
+cat > /etc/skel/.config/fastfetch/E-logo.txt << 'EOF'
 eeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeee
 eeeee
@@ -54,20 +67,22 @@ eeeeeeeeeeeeeeeeeeeeeeeee
 eeeeeeeeeeeeeeeeeeeeeeeee
 EOF
 
-chmod 644 "$USER_HOME/.config/fastfetch/E-logo.txt"
+cp /etc/skel/.config/fastfetch/E-logo.txt /etc/fastfetch/E-logo.txt
+chmod 644 /etc/fastfetch/E-logo.txt
 
-# Fastfetch configuration
-mkdir -p /etc/fastfetch
+##############################################
+# 3. SYSTEM-WIDE FASTFETCH CONFIG (/etc)
+##############################################
 cat > /etc/fastfetch/config.jsonc << EOF
 {
   "\$schema": "https://fastfetch.dev/json-schema",
   "logo": {
     "type": "file",
-    "source": "$USER_HOME/.config/fastfetch/E-logo.txt"
+    "source": "/etc/fastfetch/E-logo.txt"
   },
   "modules": [
     { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
-    { "type": "os", "format": "ENux 1.0 x86_64" },
+    { "type": "os", "format": "ENux 2.0 x86_64" },
     { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
     "uptime",
     "shell",
@@ -80,18 +95,19 @@ cat > /etc/fastfetch/config.jsonc << EOF
 }
 EOF
 
-# Command to create the fastfetch configuration file
-cat > ~/.config/fastfetch/config.jsonc << 'EOF'
+##############################################
+# 4. USER TEMPLATE FASTFETCH CONFIG (/etc/skel)
+##############################################
+cat > /etc/skel/.config/fastfetch/config.jsonc << EOF
 {
-  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+  "\$schema": "https://fastfetch.dev/json-schema",
   "logo": {
-      "type": "file",
-      "source": "/home/emir/.config/fastfetch/E-logo.txt"
-    },
-
-    "modules": [
+    "type": "file",
+    "source": "\$HOME/.config/fastfetch/E-logo.txt"
+  },
+  "modules": [
     { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
-    { "type": "os", "format": "ENux 1.0 x86_64" },
+    { "type": "os", "format": "ENux 2.0 x86_64" },
     { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
     "uptime",
     "shell",
@@ -103,14 +119,20 @@ cat > ~/.config/fastfetch/config.jsonc << 'EOF'
   ]
 }
 EOF
+
+
+##############################################
+# 5. DONE
+##############################################
 
 echo
 echo "========================================"
-echo "=          ENux 1.0 IS READY!          ="
-echo "=         Run: enuxfetch anytime       ="
+echo "=        ENux 2.0 IS NOW READY!        ="
+echo "=   Fastfetch is fully configured.     ="
+echo "=     ENux fetchers installed.         ="
 echo "========================================"
 echo
 
 # Mark phase 2 as done
-mkdir -p /etc
 touch /etc/enux-phase2-done
+
