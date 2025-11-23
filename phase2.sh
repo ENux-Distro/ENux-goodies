@@ -120,6 +120,15 @@ cat > /etc/skel/.config/fastfetch/config.jsonc << EOF
 }
 EOF
 
+cat << 'EOF' >> ~/.bashrc
+
+enuxfetch() {
+    fastfetch "$@"
+}
+
+EOF
+source ~/.bashrc
+
 
 ##############################################
 # 5. DONE
