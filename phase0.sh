@@ -44,28 +44,28 @@ for script in "${SCRIPTS[@]}"; do
 
     DESKTOP_FILE="$DESKTOP_DIR/$script.desktop"
 
-    # Create .desktop file content
+    # Create .desktop file content and install pkexec
+    apt-get -y polkitd pkexec
+    
+
+for script in "${SCRIPTS[@]}"; do
+    SCRIPT_PATH="$REPO_PATH/$script"
+    DESKTOP_FILE="$DESKTOP_DIR/$script.desktop"
+
     cat <<EOF > "$DESKTOP_FILE"
 [Desktop Entry]
 Version=1.0
 Type=Application
-Name=$script
-Comment=Run $script
-Exec=$SCRIPT_PATH
-TryExec=$SCRIPT_PATH
-Terminal=true
+Name=ENux Script (Root)
+Comment=Run ENux script in terminal as root
+Exec=pkexec xfce4-terminal -e "$SCRIPT_PATH"
+Terminal=false
+Icon=utilities-terminal
 Categories=Utility;
 EOF
 
-    # Make the launcher executable
-    chmod +x "$DESKTOP_FILE"
-    chmod +x "$SCRIPT_PATH"
-
-    # Change ownership so the user can see & execute it
-    chown "$TARGET_USER:$TARGET_USER" "$DESKTOP_FILE"
-    chown "$TARGET_USER:$TARGET_USER" "$SCRIPT_PATH"
-
-    echo "Created launcher for $script at $DESKTOP_FILE"
+    chmod +x "$DESKTOP_FILE" "$SCRIPT_PATH"
+    chown "$TARGET_USER:$TARGET_USER" "$DESKTOP_FILE" "$SCRIPT_PATH"
 done
 
 echo "✅ Phase 0 complete! Launchers are in $DESKTOP_DIR for user $TARGET_USER."
