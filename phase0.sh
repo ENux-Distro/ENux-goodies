@@ -10,9 +10,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# 1. FIND THE PRIMARY USER
-# We look for the first non-root, non-system user (UID >= 1000)
-# This assumes the Debian installer created at least one user.
+# 1. FIND THE PRIMARY USER (UID >= 1000, not nobody)
 TARGET_USER=$(awk -F: '$3 >= 1000 && $1 != "nobody" {print $1; exit}' /etc/passwd)
 
 if [ -z "$TARGET_USER" ]; then
@@ -20,22 +18,22 @@ if [ -z "$TARGET_USER" ]; then
     exit 1
 fi
 
-# Get the target user's home directory
+# Get the home directory of the user
 TARGET_HOME=$(eval echo "~$TARGET_USER")
 echo "Targeting user: $TARGET_USER ($TARGET_HOME)"
 
-# Use the current folder as repo path
+# Use the current folder as repo path (where this script resides)
 REPO_PATH="$(cd "$(dirname "$0")" && pwd)"
 echo "Using ENux-goodies folder at: $REPO_PATH"
 
 # Scripts to create launchers for
 SCRIPTS=("phase1.sh" "phase2.sh")
 
-# Where the desktop files go
+# Location for desktop files in user home
 DESKTOP_DIR="$TARGET_HOME/.local/share/applications"
 mkdir -p "$DESKTOP_DIR"
 
-# Loop through scripts
+# Loop and create desktop files
 for script in "${SCRIPTS[@]}"; do
     SCRIPT_PATH="$REPO_PATH/$script"
 
@@ -46,24 +44,26 @@ for script in "${SCRIPTS[@]}"; do
 
     DESKTOP_FILE="$DESKTOP_DIR/$script.desktop"
 
-    # Create the .desktop file
+    # Create .desktop file content
     cat <<EOF > "$DESKTOP_FILE"
 [Desktop Entry]
+Version=1.0
+Type=Application
 Name=$script
 Comment=Run $script
 Exec=$SCRIPT_PATH
+TryExec=$SCRIPT_PATH
 Terminal=true
-Type=Application
 Categories=Utility;
 EOF
 
-    # Set permissions:
+    # Make the launcher executable
     chmod +x "$DESKTOP_FILE"
     chmod +x "$SCRIPT_PATH"
-    
-    # CRITICAL: Change ownership so the user can see and use the files
-    chown -R $TARGET_USER:$TARGET_USER "$DESKTOP_DIR"
-    chown $TARGET_USER:$TARGET_USER "$DESKTOP_FILE"
+
+    # Change ownership so the user can see & execute it
+    chown "$TARGET_USER:$TARGET_USER" "$DESKTOP_FILE"
+    chown "$TARGET_USER:$TARGET_USER" "$SCRIPT_PATH"
 
     echo "Created launcher for $script at $DESKTOP_FILE"
 done
@@ -71,3 +71,4 @@ done
 echo "✅ Phase 0 complete! Launchers are in $DESKTOP_DIR for user $TARGET_USER."
 
 exit 0
+ 
