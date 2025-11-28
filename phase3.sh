@@ -118,11 +118,11 @@ source ~/.bashrc
 ##############################################
 
 echo
-echo "========================================"
-echo "=        ENux 2.0 IS NOW READY!        ="
-echo "=   Fastfetch is fully configured.     ="
-echo "=     ENux fetchers installed.         ="
-echo "========================================"
+echo "==========================================="
+echo "=         ENux 1.0 IS NOW READY!          ="
+echo "=      Fastfetch is fully configured.     ="
+echo "=        ENux fetchers installed.         ="
+echo "==========================================="
 echo
 
 # Mark phase 3 as done
