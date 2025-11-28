@@ -44,25 +44,28 @@ APT
 
 chmod +x /usr/local/bin/enux
 
-# Phase 2 service (system-wide)
-cat << 'EOF' > /etc/systemd/system/phase2.service
+# Phase 2 service (user-level, opens terminal)
+mkdir -p /home/enux/.config/systemd/user
+
+cat << 'EOF' > /home/enux/.config/systemd/user/phase2.service
 [Unit]
 Description=ENux Phase2 Script
 After=graphical.target
-Wants=graphical.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/enux/ENux-goodies/phase2.sh
+ExecStart=/usr/bin/env xfce4-terminal -e "/home/enux/ENux-goodies/phase2.sh"
 RemainAfterExit=no
-ExecStartPost=/bin/systemctl disable phase2.service
-ExecStartPost=/bin/rm -f /etc/systemd/system/phase2.service
+ExecStartPost=/bin/systemctl --user disable phase2.service
+ExecStartPost=/bin/rm -f /home/enux/.config/systemd/user/phase2.service
 
 [Install]
-WantedBy=graphical.target
+WantedBy=default.target
 EOF
 
-systemctl enable phase2.service
+# Enable for enux user
+chown -R enux:enux /home/enux/.config/systemd/user
+sudo -u enux systemctl --user enable phase2.service
 
 # ENux black login greeter setup
 mkdir -p /usr/share/images/desktop-base
