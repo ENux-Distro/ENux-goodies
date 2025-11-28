@@ -44,22 +44,6 @@ APT
 
 chmod +x /usr/local/bin/enux
 
-# Installing Bedrock Linux
-echo "Installing ENux core (Bedrock Linux hijack)..."
-
-# Download installer
-wget -O /tmp/bedrock-linux-0.7.30-x86_64.sh \
-https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh \
-|| { echo "ERROR: Failed to download Bedrock!"; exit 1; }
-
-# Make it executable
-chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
-
-# Run Bedrock installer with auto-confirm
-cd /tmp/
-sh ./bedrock-linux-0.7.30-x86_64.sh --hijack
-cd ~
-
 # Create a one-shot systemd service for phase2.sh
 cat << 'EOF' > /etc/systemd/system/phase2.service
 [Unit]
@@ -80,6 +64,12 @@ EOF
 
 # Enable the service so it runs on next boot
 systemctl enable phase2.service
+
+# ENux black login greeter setup
+mkdir -p /usr/share/images/desktop-base
+cp /home/enux/ENux-goodies/enux-login.png /usr/share/images/desktop-base/desktop-background
+cp /home/enux/ENux-goodies/enux-login.svg /usr/share/images/desktop-base/login-background.svg
+sed -i 's|^background=.*|background=/usr/share/images/desktop-base/desktop-background|' /etc/lightdm/lightdm-gtk-greeter.conf
 
 
 clear
