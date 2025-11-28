@@ -20,128 +20,41 @@ echo "        ENux PHASE 2 - SYSTEM SETUP"
 echo "========================================"
 echo
 
-###########################################
-# 1. FETCH DISTROS USING BEDROCK-LINUX (brl)
-###########################################
+#Installing bedrock linux
 
-echo "[+] Fetching Arch Linux..."
-brl fetch arch || true
+# Installing Bedrock Linux
+echo "Installing ENux core (Bedrock Linux hijack)..."
 
-echo "[+] Fetching Fedora 41..."
-brl fetch fedora --release 41 || true
+# Download installer
+wget -O /tmp/bedrock-linux-0.7.30-x86_64.sh \
+https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh \
+|| { echo "ERROR: Failed to download Bedrock!"; exit 1; }
 
-echo "[+] Fetching Void..."
-brl fetch void || true
+# Make it executable
+chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
 
-echo "[+] Fetching Alpine..."
-brl fetch alpine || true
+# Run Bedrock installer with auto-confirm
+cat << 'EOF' > /tmp/bedrock_auto.expect
+#!/usr/bin/expect -f
 
-echo "[+] Fetching Gentoo..."
-brl fetch gentoo || true
+set timeout -1
 
-echo
-echo "[+] Fetch operations completed (errors ignored)."
-echo
+# Bedrock installer path
+set bedrock "/tmp/bedrock-linux-0.7.30-x86_64.sh"
 
-#################################################
-# 2. PREPARE FASTFETCH CONFIGS (USER + SYSTEM)
-#################################################
+spawn sh $bedrock --hijack
 
-# Directory for system-wide fastfetch config
-mkdir -p /etc/fastfetch
-
-# Directory for user template (copied to new users)
-mkdir -p /etc/skel/.config/fastfetch
-
-# ASCII E Logo (saved in skel + system)
-cat > /etc/skel/.config/fastfetch/E-logo.txt << 'EOF'
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeee
-eeeee
-eeeeeeeeeeeeeeeeeeeeeeee
-eeeee
-eeeee
-eeeee
-eeeeeeeeeeeeeeeeeeeeeeeee
-eeeeeeeeeeeeeeeeeeeeeeeee
-EOF
-
-cp /etc/skel/.config/fastfetch/E-logo.txt /etc/fastfetch/E-logo.txt
-chmod 644 /etc/fastfetch/E-logo.txt
-
-##############################################
-# 3. SYSTEM-WIDE FASTFETCH CONFIG (/etc)
-##############################################
-cat > /etc/fastfetch/config.jsonc << EOF
-{
-  "\$schema": "https://fastfetch.dev/json-schema",
-  "logo": {
-    "type": "file",
-    "source": "/etc/fastfetch/E-logo.txt"
-  },
-  "modules": [
-    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
-    { "type": "os", "format": "ENux 2.0 x86_64" },
-    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
-    "uptime",
-    "shell",
-    "de",
-    "memory",
-    "display",
-    "disk",
-    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
-  ]
-}
-EOF
-
-##############################################
-# 4. USER TEMPLATE FASTFETCH CONFIG (/etc/skel)
-##############################################
-cat > /etc/skel/.config/fastfetch/config.jsonc << EOF
-{
-  "\$schema": "https://fastfetch.dev/json-schema",
-  "logo": {
-    "type": "file",
-    "source": "\$HOME/.config/fastfetch/E-logo.txt"
-  },
-  "modules": [
-    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
-    { "type": "os", "format": "ENux 2.0 x86_64" },
-    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
-    "uptime",
-    "shell",
-    "de",
-    "memory",
-    "display",
-    "disk",
-    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
-  ]
-}
-EOF
-
-cat << 'EOF' >> ~/.bashrc
-
-enuxfetch() {
-    fastfetch "$@"
+expect {
+    -re "Not reversible!" {
+        send "Not reversible!\r"
+    }
 }
 
+expect eof
 EOF
-source ~/.bashrc
 
-
-##############################################
-# 5. DONE
-##############################################
-
-echo
-echo "========================================"
-echo "=        ENux 2.0 IS NOW READY!        ="
-echo "=   Fastfetch is fully configured.     ="
-echo "=     ENux fetchers installed.         ="
-echo "========================================"
-echo
-
-# Mark phase 2 as done
-touch /etc/enux-phase2-done
+# Make it executable
+chmod +x /tmp/bedrock_auto.expect
+#Run the script
+/tmp/bedrock_auto.expect
 
