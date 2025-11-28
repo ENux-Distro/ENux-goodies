@@ -50,14 +50,13 @@ mkdir -p /home/enux/.config/systemd/user
 cat << 'EOF' > /home/enux/.config/systemd/user/phase2.service
 [Unit]
 Description=ENux Phase2 Script
-After=graphical.target
+After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/env xfce4-terminal -e "/home/enux/ENux-goodies/phase2.sh"
+ExecStart=/home/enux/ENux-goodies/phase2.sh
+Environment=XDG_CONFIG_DIRS=/etc/xdg:/usr/share/xdg
 RemainAfterExit=no
-ExecStartPost=/bin/systemctl --user disable phase2.service
-ExecStartPost=/bin/rm -f /home/enux/.config/systemd/user/phase2.service
 
 [Install]
 WantedBy=default.target
