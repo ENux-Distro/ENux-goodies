@@ -44,7 +44,7 @@ APT
 
 chmod +x /usr/local/bin/enux
 
-# Create a one-shot systemd service for phase2.sh
+# Phase 2 service (system-wide)
 cat << 'EOF' > /etc/systemd/system/phase2.service
 [Unit]
 Description=ENux Phase2 Script
@@ -59,10 +59,9 @@ ExecStartPost=/bin/systemctl disable phase2.service
 ExecStartPost=/bin/rm -f /etc/systemd/system/phase2.service
 
 [Install]
-WantedBy=default.target
+WantedBy=graphical.target
 EOF
 
-# Enable the service so it runs on next boot
 systemctl enable phase2.service
 
 # ENux black login greeter setup
