@@ -58,17 +58,16 @@ chmod +x /tmp/bedrock_auto.expect
 #Run the script
 /tmp/bedrock_auto.expect
 
-# Phase 3 service (user-level, runs once)
-mkdir -p /home/enux/.config/systemd/user
-
+# Phase 3 service (user-level, opens terminal)
 cat << 'EOF' > /home/enux/.config/systemd/user/phase3.service
 [Unit]
 Description=ENux Phase3 Script
-After=graphical.target
+After=phase2.service
+Wants=phase2.service
 
 [Service]
 Type=oneshot
-ExecStart=/home/enux/ENux-goodies/phase3.sh
+ExecStart=/usr/bin/env xfce4-terminal -e "/home/enux/ENux-goodies/phase3.sh"
 RemainAfterExit=no
 ExecStartPost=/bin/systemctl --user disable phase3.service
 ExecStartPost=/bin/rm -f /home/enux/.config/systemd/user/phase3.service
@@ -77,9 +76,10 @@ ExecStartPost=/bin/rm -f /home/enux/.config/systemd/user/phase3.service
 WantedBy=default.target
 EOF
 
-# Enable for the enux user
+# Enable for enux user
 chown -R enux:enux /home/enux/.config/systemd/user
 sudo -u enux systemctl --user enable phase3.service
+
 
 
 echo "===================================="
