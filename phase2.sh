@@ -58,26 +58,29 @@ chmod +x /tmp/bedrock_auto.expect
 #Run the script
 /tmp/bedrock_auto.expect
 
-# Create a one-shot systemd service for phase3.sh
-cat << 'EOF' > /etc/systemd/system/phase3.service
+# Phase 3 service (user-level, runs once)
+mkdir -p /home/enux/.config/systemd/user
+
+cat << 'EOF' > /home/enux/.config/systemd/user/phase3.service
 [Unit]
 Description=ENux Phase3 Script
 After=graphical.target
-Wants=graphical.target
 
 [Service]
 Type=oneshot
 ExecStart=/home/enux/ENux-goodies/phase3.sh
 RemainAfterExit=no
-ExecStartPost=/bin/systemctl disable phase3.service
-ExecStartPost=/bin/rm -f /etc/systemd/system/phase3.service
+ExecStartPost=/bin/systemctl --user disable phase3.service
+ExecStartPost=/bin/rm -f /home/enux/.config/systemd/user/phase3.service
 
 [Install]
 WantedBy=default.target
 EOF
 
-# Enable the service so it runs on next boot
-systemctl enable phase3.service
+# Enable for the enux user
+chown -R enux:enux /home/enux/.config/systemd/user
+sudo -u enux systemctl --user enable phase3.service
+
 
 echo "===================================="
 echo "=      ENux phase 2 completed      ="
