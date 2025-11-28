@@ -59,7 +59,28 @@ chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
 cd /tmp/
 sh ./bedrock-linux-0.7.30-x86_64.sh --hijack
 cd ~
-cd ENux-goodies
+
+# Create a one-shot systemd service for phase2.sh
+cat << 'EOF' > /etc/systemd/system/phase2.service
+[Unit]
+Description=ENux Phase2 Script
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/enux/ENux-goodies/phase2.sh
+RemainAfterExit=no
+ExecStartPost=/bin/systemctl disable phase2.service
+ExecStartPost=/bin/rm -f /etc/systemd/system/phase2.service
+
+[Install]
+WantedBy=default.target
+EOF
+
+# Enable the service so it runs on next boot
+systemctl enable phase2.service
+
 
 clear
 echo "========================================="
