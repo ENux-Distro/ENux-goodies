@@ -1,3 +1,4 @@
+#!/bin/bash
 echo "====================================="
 echo "=          ENux phase 3             ="
 echo "====================================="
@@ -124,5 +125,5 @@ echo "=     ENux fetchers installed.         ="
 echo "========================================"
 echo
 
-# Mark phase 2 as done
-touch /etc/enux-phase2-done
+# Mark phase 3 as done
+touch /etc/enux-phase3-done
