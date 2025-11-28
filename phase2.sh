@@ -67,17 +67,18 @@ Wants=phase2.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/env xfce4-terminal -e "/home/enux/ENux-goodies/phase3.sh"
+ExecStart=/home/enux/ENux-goodies/phase3.sh
+Environment=XDG_CONFIG_DIRS=/etc/xdg:/usr/share/xdg
 RemainAfterExit=no
-ExecStartPost=/bin/systemctl --user disable phase3.service
-ExecStartPost=/bin/rm -f /home/enux/.config/systemd/user/phase3.service
 
 [Install]
 WantedBy=default.target
 EOF
 
+
 # Enable for enux user
 chown -R enux:enux /home/enux/.config/systemd/user
+sudo -u enux systemctl --user daemon-reload
 sudo -u enux systemctl --user enable phase3.service
 
 
