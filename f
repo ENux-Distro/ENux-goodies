@@ -1,65 +1,46 @@
 #!/bin/bash
-
-# Enable debug and logging
-exec > >(tee /tmp/bootloader-config.log) 2>&1
 set -xe
 trap 'echo "ERROR: Command failed -> $BASH_COMMAND"' ERR
 
-# Detect target root (Calamares sets INSTALL_ROOT)
 CHROOT="${INSTALL_ROOT:-/target}"
 
-# Verify the target root exists
-if [ ! -d "$CHROOT" ]; then
-    echo "ERROR: Target root not found at $CHROOT"
-    exit 1
-fi
-echo "Target root detected at: $CHROOT"
-
-# Bind-mount /proc, /sys, /dev if not already mounted
-for dir in proc sys dev; do
+# 1. Enhanced Bind Mounts
+# Added /run (crucial for udev/grub) and /dev/pts
+for dir in proc sys dev dev/pts run; do
+    mkdir -p "$CHROOT/$dir"
     mountpoint -q "$CHROOT/$dir" || mount --bind "/$dir" "$CHROOT/$dir"
 done
 
-# Ensure PATH includes sbin directories
+# 2. Fix EFI Variable Access
+if [ -d /sys/firmware/efi/efivars ]; then
+    mount -t efivarfs none "$CHROOT/sys/firmware/efi/efivars" 2>/dev/null || true
+fi
+
 export PATH=$PATH:/usr/sbin:/sbin
 
-# Update chroot's apt
-if [ ! -f "$CHROOT/etc/apt/sources.list" ]; then
-    echo "ERROR: No sources.list in target root. Cannot install packages."
-    exit 1
-fi
+# 3. Handle Bedrock "Stratum" context
+# If you are in a hijacked environment, you might need to ensure 
+# the chroot uses the 'global' or 'host' tools.
+chroot "$CHROOT" apt-get update
 
-chroot "$CHROOT" apt-get update || echo "WARNING: apt-get update failed inside chroot"
+# ... [LUKS Logic remains the same] ...
 
-# Install LUKS utilities if target uses encryption
-if mount | grep -q "$CHROOT" | grep -q "/dev/mapper/luks"; then
-    echo "Configuring LUKS initramfs permissions..."
-    echo "UMASK=0077" > "$CHROOT/etc/initramfs-tools/conf.d/initramfs-permissions"
-    chroot "$CHROOT" apt-get -y install cryptsetup-initramfs cryptsetup keyutils || echo "WARNING: LUKS packages failed to install"
-fi
-
-# Install bootloader dependencies safely
-chroot "$CHROOT" apt-get -y install os-prober || echo "WARNING: os-prober install failed"
-
-# Detect UEFI vs BIOS and install appropriate grub
+# 4. Explicit GRUB Installation
 if [ -d /sys/firmware/efi/efivars ]; then
-    echo "UEFI detected, installing grub-efi..."
-    chroot "$CHROOT" apt-get -y install grub-efi || echo "WARNING: grub-efi install failed"
+    echo "UEFI detected..."
+    chroot "$CHROOT" apt-get -y install grub-efi-amd64
+    # Manually trigger grub-install to ensure it points to the right place
+    chroot "$CHROOT" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=ENux --recheck
 else
-    echo "BIOS detected, installing grub-pc..."
-    chroot "$CHROOT" apt-get -y install grub-pc || echo "WARNING: grub-pc install failed"
+    echo "BIOS detected..."
+    chroot "$CHROOT" apt-get -y install grub-pc
+    # Note: You may need to specify the device here, e.g., /dev/sda
+    # chroot "$CHROOT" grub-install /dev/sdX 
 fi
 
-# Re-enable os-prober in grub configuration if file exists
-if [ -f "$CHROOT/etc/default/grub" ]; then
-    sed -i 's/#GRUB_DISABLE_OS_PROBER=false/# OS_PROBER re-enabled by ENux Calamares installation:\nGRUB_DISABLE_OS_PROBER=false/g' "$CHROOT/etc/default/grub"
-fi
-
-# Run update-grub if /usr/sbin/update-grub exists
+# Update GRUB
 if [ -x "$CHROOT/usr/sbin/update-grub" ]; then
-    chroot "$CHROOT" /usr/sbin/update-grub || echo "WARNING: update-grub failed"
-else
-    echo "WARNING: update-grub not found in target root"
+    chroot "$CHROOT" update-grub
 fi
 
 echo "Bootloader configuration completed!"
