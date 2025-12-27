@@ -3,9 +3,6 @@ echo "====================================="
 echo "=          ENux phase 3             ="
 echo "====================================="
 
-###########################################
-# 1. FETCH DISTROS USING BEDROCK-LINUX (brl)
-###########################################
 
 echo "[+] Fetching Arch Linux..."
 brl fetch arch || true
@@ -26,9 +23,7 @@ echo
 echo "[+] Fetch operations completed (errors ignored)."
 echo
 
-#################################################
-# 2. PREPARE FASTFETCH CONFIGS (USER + SYSTEM)
-#################################################
+
 
 # Directory for system-wide fastfetch config
 mkdir -p /etc/fastfetch
@@ -53,9 +48,7 @@ EOF
 cp /etc/skel/.config/fastfetch/E-logo.txt /etc/fastfetch/E-logo.txt
 chmod 644 /etc/fastfetch/E-logo.txt
 
-##############################################
-# 3. SYSTEM-WIDE FASTFETCH CONFIG (/etc)
-##############################################
+
 cat > /etc/fastfetch/config.jsonc << EOF
 {
   "\$schema": "https://fastfetch.dev/json-schema",
@@ -78,9 +71,6 @@ cat > /etc/fastfetch/config.jsonc << EOF
 }
 EOF
 
-##############################################
-# 4. USER TEMPLATE FASTFETCH CONFIG (/etc/skel)
-##############################################
 cat > /etc/skel/.config/fastfetch/config.jsonc << EOF
 {
   "\$schema": "https://fastfetch.dev/json-schema",
@@ -113,9 +103,6 @@ EOF
 source ~/.bashrc
 
 
-##############################################
-# 5. DONE
-##############################################
 
 echo
 echo "==========================================="
