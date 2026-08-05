@@ -1,3 +1,5 @@
+# WTF is this, and why is it named f?
+
 #!/bin/bash
 set -xe
 trap 'echo "ERROR: Command failed -> $BASH_COMMAND"' ERR
