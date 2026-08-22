@@ -1,4 +1,5 @@
 # WTF is this, and why is it named f?
+# OOOH, IT WAS FOR MAKING CALAMARES WORK PRE-INSTALLED BEDROCK SYSTEMS.
 
 #!/bin/bash
 set -xe
