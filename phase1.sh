@@ -44,36 +44,25 @@ APT
 
 chmod +x /usr/local/bin/enux
 
-# Phase 2 service (user-level, opens terminal)
-mkdir -p /home/enux/.config/systemd/user
+# Installing Bedrock Linux
+echo "Installing ENux core (Bedrock Linux hijack)..."
 
-cat << 'EOF' > /home/enux/.config/systemd/user/phase2.service
-[Unit]
-Description=ENux Phase2 Script
-After=graphical-session.target
+# Download installer
+wget -O /tmp/bedrock-linux-0.7.30-x86_64.sh \
+https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh \
+|| { echo "ERROR: Failed to download Bedrock!"; exit 1; }
 
-[Service]
-Type=oneshot
-ExecStart=/home/enux/ENux-goodies/phase2.sh
-Environment=XDG_CONFIG_DIRS=/etc/xdg:/usr/share/xdg
-RemainAfterExit=no
+# Make it executable
+chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
 
-[Install]
-WantedBy=default.target
-EOF
-
-# Enable for enux user
-chown -R enux:enux /home/enux/.config/systemd/user
-sudo -u enux systemctl --user enable phase2.service
-
-# ENux black login greeter setup
-mkdir -p /usr/share/images/desktop-base
-cp /home/enux/ENux-goodies/enux-login.png /usr/share/images/desktop-base/desktop-background
-cp /home/enux/ENux-goodies/enux-login.svg /usr/share/images/desktop-base/login-background.svg
-sed -i 's|^background=.*|background=/usr/share/images/desktop-base/desktop-background|' /etc/lightdm/lightdm-gtk-greeter.conf
-
+# Run Bedrock installer with auto-confirm
+cd /tmp/
+sh ./bedrock-linux-0.7.30-x86_64.sh --hijack
+cd ~
+cd ENux-goodies
 
 clear
+# Man what the fuck was I thinking about calling stratas E's back in the day
 echo "========================================="
 echo "=           PHASE 1 COMPLETED           ="
 echo "=         REBOOT NOW FOR PHASE 2        ="
@@ -81,4 +70,3 @@ echo "=        (E's installed in Phase 2)     ="
 echo "========================================="
 echo
 echo            "Run: sudo reboot"
-

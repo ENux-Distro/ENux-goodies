@@ -20,70 +20,119 @@ echo "        ENux PHASE 2 - SYSTEM SETUP"
 echo "========================================"
 echo
 
-#Installing bedrock linux
+###########################################
+# 1. FETCH DISTROS USING BEDROCK-LINUX (brl)
+###########################################
 
-# Installing Bedrock Linux
-echo "Installing ENux core (Bedrock Linux hijack)..."
+echo "[+] Fetching Arch Linux..."
+brl fetch arch --mirror https://mirrors.ocf.berkeley.edu/archlinux/$repo/os/$arch || true
 
-# Download installer
-wget -O /tmp/bedrock-linux-0.7.30-x86_64.sh \
-https://github.com/bedrocklinux/bedrocklinux-userland/releases/download/0.7.30/bedrock-linux-0.7.30-x86_64.sh \
-|| { echo "ERROR: Failed to download Bedrock!"; exit 1; }
+echo "[+] Fetching Fedora 41..."
+brl fetch fedora --release 41 || true
 
-# Make it executable
-chmod +x /tmp/bedrock-linux-0.7.30-x86_64.sh
+echo "[+] Fetching Void..."
+brl fetch void || true
 
-# Run Bedrock installer with auto-confirm
-cat << 'EOF' > /tmp/bedrock_auto.expect
-#!/usr/bin/expect -f
+echo "[+] Fetching Alpine..."
+brl fetch alpine || true
 
-set timeout -1
+echo "[+] Fetching Gentoo..."
+brl fetch gentoo || true
 
-# Bedrock installer path
-set bedrock "/tmp/bedrock-linux-0.7.30-x86_64.sh"
+echo
+echo "[+] Fetch operations completed (errors ignored)."
+echo
 
-spawn sh $bedrock --hijack
+#################################################
+# 2. PREPARE FASTFETCH CONFIGS (USER + SYSTEM)
+#################################################
 
-expect {
-    -re "Not reversible!" {
-        send "Not reversible!\r"
-    }
+# Directory for system-wide fastfetch config
+mkdir -p /etc/fastfetch
+
+# Directory for user template (copied to new users)
+mkdir -p /etc/skel/.config/fastfetch
+
+# ASCII E Logo (saved in skel + system)
+cat > /etc/skel/.config/fastfetch/E-logo.txt << 'EOF'
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeee
+eeeee
+eeeee
+eeeee
+eeeeeeeeeeeeeeeeeeeeeeeee
+eeeeeeeeeeeeeeeeeeeeeeeee
+EOF
+
+cp /etc/skel/.config/fastfetch/E-logo.txt /etc/fastfetch/E-logo.txt
+chmod 644 /etc/fastfetch/E-logo.txt
+
+##############################################
+# 3. SYSTEM-WIDE FASTFETCH CONFIG (/etc)
+##############################################
+cat > /etc/fastfetch/config.jsonc << EOF
+{
+  "\$schema": "https://fastfetch.dev/json-schema",
+  "logo": {
+    "type": "file",
+    "source": "/etc/fastfetch/E-logo.txt"
+  },
+  "modules": [
+    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
+    { "type": "os", "format": "ENux Beta 1.0 x86_64" },
+    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
+    "uptime",
+    "shell",
+    "de",
+    "memory",
+    "display",
+    "disk",
+    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
+  ]
 }
-
-expect eof
 EOF
 
-# Make it executable
-chmod +x /tmp/bedrock_auto.expect
-#Run the script
-/tmp/bedrock_auto.expect
+##############################################
+# 4. USER TEMPLATE FASTFETCH CONFIG (/etc/skel)
+##############################################
 
-# Phase 3 service (user-level, opens terminal)
-cat << 'EOF' > /home/enux/.config/systemd/user/phase3.service
-[Unit]
-Description=ENux Phase3 Script
-After=phase2.service
-Wants=phase2.service
-
-[Service]
-Type=oneshot
-ExecStart=/home/enux/ENux-goodies/phase3.sh
-Environment=XDG_CONFIG_DIRS=/etc/xdg:/usr/share/xdg
-RemainAfterExit=no
-
-[Install]
-WantedBy=default.target
+cat > /etc/skel/.config/fastfetch/config.jsonc << EOF
+{
+  "\$schema": "https://fastfetch.dev/json-schema",
+  "logo": {
+    "type": "file",
+    "source": "\$HOME/.config/fastfetch/E-logo.txt"
+  },
+  "modules": [
+    { "type": "title", "format": "{1}@ENux-Hybrid-Meta_Distro" },
+    { "type": "os", "format": "ENux Beta 1.0 x86_64" },
+    { "type": "kernel", "format": "linux-6.12.48-enux1-amd64" },
+    "uptime",
+    "shell",
+    "de",
+    "memory",
+    "display",
+    "disk",
+    { "type": "packages", "format": "Packages: {1}{2}{3}{4}{5}{6}" }
+  ]
+}
 EOF
 
 
-# Enable for enux user
-chown -R enux:enux /home/enux/.config/systemd/user
-sudo -u enux systemctl --user daemon-reload
-sudo -u enux systemctl --user enable phase3.service
+##############################################
+# 5. DONE
+##############################################
 
+echo
+echo "============================================="
+echo "=        ENux Beta 1.0 IS NOW READY!        ="
+echo "=       Fastfetch is fully configured.      ="
+echo "=         ENux fetchers installed.          ="
+echo "============================================="
+echo
 
-
-echo "===================================="
-echo "=      ENux phase 2 completed      ="
-echo "=  Reboot your machine for phase 3 ="
-echo "===================================="
+# Mark phase 2 as done
+touch /etc/enux-phase2-done
